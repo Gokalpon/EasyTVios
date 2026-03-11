@@ -1,0 +1,29 @@
+{
+  "name": "easytv",
+  "version": "4.0.0",
+  "description": "EasyTV - Subscription Management App",
+  "scripts": {
+    "start": "expo start",
+    "dev": "expo start --ios",
+    "web": "expo start --web",
+    "build:ios": "eas build --platform ios",
+    "build:preview": "eas build --platform ios --profile preview"
+  },
+  "dependencies": {
+    "expo": "^55.0.6",
+    "expo-constants": "^55.0.7",
+    "react-native": "^0.84.1",
+    "react-native-webview": "^13.16.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/ios": "^8.2.0",
+    "serve": "^14.2.1"
+  },
+  "capacitor": {
+    "appId": "com.easytv.app",
+    "appName": "EasyTV",
+    "webDir": "www"
+  }
+}
