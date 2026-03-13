@@ -4,3 +4,5 @@ node_modules
 ios/App/build/
 ios/App/Pods/
 ios/App/DerivedData/
+ios/App/App/capacitor.config.json
+ios/App/App/public/

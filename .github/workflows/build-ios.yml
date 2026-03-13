@@ -21,18 +21,29 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Sync Capacitor iOS
-      run: npx cap sync ios
+    - name: Capacitor Sync
+      run: |
+        npx cap sync ios
+        echo "=== Package.swift ==="
+        cat ios/App/CapApp-SPM/Package.swift
+        echo "=== Checking node_modules ==="
+        ls node_modules/@capacitor/ || true
 
-    - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+    - name: List Xcode versions
+      run: |
+        xcode-select -p
+        xcodebuild -version
+        xcodebuild -project ios/App/App.xcodeproj -list
 
     - name: Resolve SPM Dependencies
       run: |
         cd ios/App
-        xcodebuild -project App.xcodeproj -scheme App -resolvePackageDependencies
+        xcodebuild -project App.xcodeproj \
+          -scheme App \
+          -resolvePackageDependencies \
+          -clonedSourcePackagesDirPath SPMBuild
 
-    - name: Build iOS App (unsigned)
+    - name: Build iOS Archive
       run: |
         cd ios/App
         xcodebuild \
@@ -42,12 +53,14 @@ jobs:
           -sdk iphoneos \
           -destination 'generic/platform=iOS' \
           -archivePath build/App.xcarchive \
+          -clonedSourcePackagesDirPath SPMBuild \
           archive \
           CODE_SIGN_IDENTITY="-" \
           CODE_SIGNING_REQUIRED=NO \
           CODE_SIGNING_ALLOWED=NO \
           DEVELOPMENT_TEAM="" \
-          AD_HOC_CODE_SIGNING_ALLOWED=YES
+          AD_HOC_CODE_SIGNING_ALLOWED=YES \
+          COMPILER_INDEX_STORE_ENABLE=NO
 
     - name: Create IPA
       run: |
@@ -55,7 +68,7 @@ jobs:
         mkdir -p Payload
         cp -r App.xcarchive/Products/Applications/App.app Payload/
         zip -r EasyTV.ipa Payload
-        echo "IPA size:"
+        echo "IPA created:"
         ls -la EasyTV.ipa
 
     - name: Upload IPA
