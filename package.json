@@ -3,21 +3,24 @@
   "version": "4.0.0",
   "description": "EasyTV - Subscription Management App",
   "scripts": {
-    "start": "expo start",
-    "dev": "expo start --ios",
-    "web": "expo start --web",
-    "build:ios": "eas build --platform ios",
-    "build:preview": "eas build --platform ios --profile preview"
+    "build": "echo 'Static HTML app - no build needed'",
+    "cap:sync": "npx cap sync ios",
+    "cap:open": "npx cap open ios",
+    "cap:run": "npx cap run ios"
   },
   "dependencies": {
-    "expo": "^55.0.6",
-    "expo-constants": "^55.0.7",
-    "react-native": "^0.84.1",
-    "react-native-webview": "^13.16.1"
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/browser": "^8.0.0",
+    "@capacitor/clipboard": "^8.0.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/keyboard": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.2.0",
-    "@capacitor/core": "^8.2.0",
     "@capacitor/ios": "^8.2.0",
     "serve": "^14.2.1"
   },
