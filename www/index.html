@@ -16,14 +16,25 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;}
 html,body{width:100%;height:100%;background:#0a0a0a;font-family:-apple-system,'SF Pro Text',system-ui,sans-serif;overflow:hidden;}
 
+/* BROWSER MOCKUP - iPhone 15 Pro frame */
+body.browser-preview{background:#1a1a2e;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+body.browser-preview .phone-mock{position:relative;width:375px;height:812px;border-radius:52px;border:5px solid #2a2a3a;background:#0a0a0a;overflow:hidden;box-shadow:0 0 0 2px #1a1a1a,0 40px 80px rgba(0,0,0,.6),0 0 120px rgba(100,100,255,.06);flex-shrink:0;}
+body.browser-preview .phone-mock .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;z-index:999;display:flex;align-items:center;justify-content:flex-end;padding-right:14px;}
+body.browser-preview .phone-mock .notch-cam{width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#1c2535,#0a0f18);border:1.5px solid #1a2030;}
+body.browser-preview .phone-mock .home-indicator{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.18);z-index:999;}
+body:not(.browser-preview) .phone-mock .notch,
+body:not(.browser-preview) .phone-mock .home-indicator{display:none;}
+
 /* PHONE - native full screen */
 .phone{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;}
+body.browser-preview .phone{position:absolute;inset:0;width:100%;height:100%;}
 .pill{display:none;}
 .bg{position:absolute;inset:0;background:url("background1.png") center/cover no-repeat;}
 .bg-grain{position:absolute;inset:0;pointer-events:none;opacity:.028;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;}
 
 /* RENK KÖRÜ MODU */
-body.colorblind .phone>*:not(.bg){filter:url(#cb-filter);}
+body.colorblind.browser-preview .phone-mock{filter:url(#cb-filter);}
+body.colorblind:not(.browser-preview) .phone{filter:url(#cb-filter);}
 svg#cb-svg{position:absolute;width:0;height:0;}
 
 /* STATUS BAR */
@@ -376,6 +387,9 @@ svg#cb-svg{position:absolute;width:0;height:0;}
   <symbol id="i-eyeoff" viewBox="0 0 18 15"><path d="M1 1l16 13M7.5 3.5A8 8 0 019 3.5c3 0 6 2 8 6a14 14 0 01-2.5 3.3M4.5 5.3C2.7 6.6 1.5 8.3 1 9.5c2 4 5 6 8 6a8 8 0 003.8-.9" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round"/></symbol>
 </defs></svg>
 
+<div class="phone-mock" id="phoneMock">
+<div class="notch"><div class="notch-cam"></div></div>
+<div class="home-indicator"></div>
 <div class="phone" id="phone">
   <div class="pill"></div>
   <div class="bg"></div>
@@ -784,7 +798,7 @@ svg#cb-svg{position:absolute;width:0;height:0;}
   </div>
 
   <div id="subEditModal" style="display:none;position:absolute;inset:0;z-index:400;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);flex-direction:column;align-items:center;justify-content:flex-end;">
-    <div style="background:#1e1f26;border-radius:24px 24px 0 0;width:100%;padding:24px 20px 40px;box-sizing:border-box;">
+    <div style="background:#1e1f26;border-radius:24px 24px 0 0;width:100%;padding:24px 20px 40px;box-sizing:border-box;max-height:90%;overflow-y:auto;-webkit-overflow-scrolling:touch;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
         <div style="display:flex;align-items:center;gap:12px;">
           <div id="seLogoWrap" style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);flex-shrink:0;"></div>
@@ -798,7 +812,7 @@ svg#cb-svg{position:absolute;width:0;height:0;}
       <div style="display:flex;flex-direction:column;gap:12px;">
         <div>
           <div id="sePriceLbl" style="font-size:11px;font-weight:600;color:rgba(255,255,255,.4);margin-bottom:6px;letter-spacing:.5px;">AYLIK FİYAT</div>
-          <input id="sePrice" class="add-input" type="number" placeholder="0.00" step="0.01" inputmode="decimal" min="0">
+          <input id="sePrice" class="add-input" type="number" placeholder="0.00" step="0.01" inputmode="decimal" min="0" oninput="if(seEditIdx>=0)setupShareSection(SVC[seEditIdx])">
         </div>
         <div id="sePlanRow">
           <div id="sePlanLbl" style="font-size:11px;font-weight:600;color:rgba(255,255,255,.4);margin-bottom:6px;letter-spacing:.5px;">PLAN</div>
@@ -852,7 +866,7 @@ svg#cb-svg{position:absolute;width:0;height:0;}
   </div>
 
   <div class="alert-modal" id="renewalModal">
-    <div class="alert-bg"></div>
+    <div class="alert-bg" onclick="document.getElementById('renewalModal').classList.remove('open')"></div>
     <div class="alert-sheet">
       <div class="alert-icon">🔄</div>
       <div class="alert-title" id="renewalTitle">Abonelik Yenilendi mi?</div>
@@ -866,8 +880,25 @@ svg#cb-svg{position:absolute;width:0;height:0;}
       <svg width="48" height="56" viewBox="0 0 48 56" fill="none"><rect x="6" y="24" width="36" height="28" rx="6" stroke="white" stroke-width="2.5" fill="none"/><path d="M14 24V16C14 10.477 18.477 6 24 6C29.523 6 34 10.477 34 16V24" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="24" cy="38" r="3.5" fill="white"/><line x1="24" y1="41.5" x2="24" y2="46" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
     </div>
     <div class="lock-text">Uygulama kilitlendi</div>
-    <button class="add-save-btn" style="width:auto;padding:12px 32px;margin:0;" onclick="unlockFromLock()">PIN ile Aç</button>
+    <button class="add-save-btn" style="width:auto;padding:12px 32px;margin:0;" onclick="showPinScreen()">PIN ile Aç</button>
   </div>
+
+<script>
+function showPinScreen(){
+  document.getElementById('lockOverlay').classList.remove('visible');
+  document.getElementById('pinScreen').style.display='flex';
+  document.getElementById('mainApp').style.display='none';
+  pinVal='';updatePinDots();pinMode='unlock';
+}
+function openPinChange(){
+  pinMode='change1';pinVal='';
+  document.getElementById('pinGreeting').textContent='Mevcut PIN';
+  document.getElementById('pinHint').textContent='Mevcut PIN\'ini gir';
+  updatePinDots();
+  document.getElementById('pinScreen').style.display='flex';
+  document.getElementById('mainApp').style.display='none';
+}
+</script>
 
   <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
   <div class="toast" id="toast"></div>
@@ -1103,17 +1134,21 @@ async function pushToCloud(userId) {
   } catch(e) { console.warn('Cloud push hatası:', e); }
 }
 
-// saveData'yı cloud sync ile güçlendir
-const _origSaveData = saveData;
-function saveData() {
-  _origSaveData();
+// saveData'yı cloud sync ile güçlendir — defer until saveData exists
+function _initCloudSaveOverride() {
+  if (typeof saveData === 'undefined') { setTimeout(_initCloudSaveOverride, 200); return; }
+  const _origSave = saveData;
+  window.saveData = function() {
+    _origSave();
   localStorage.setItem('easytv_data_ts', String(Date.now()));
   // Debounced cloud push
   clearTimeout(_cloudSyncTimer);
   _cloudSyncTimer = setTimeout(() => {
     if (_cloudUserId) pushToCloud(_cloudUserId);
   }, 2000);
+  };
 }
+_initCloudSaveOverride();
 
 // Çıkış yap
 async function signOut() {
@@ -1182,18 +1217,18 @@ function selectLoginCountry(code,region){SETTINGS.country=code;SETTINGS.region=r
 const CURRENCIES=[{code:'TRY',symbol:'₺',name:'Türk Lirası'},{code:'USD',symbol:'$',name:'Amerikan Doları'},{code:'EUR',symbol:'€',name:'Euro'},{code:'GBP',symbol:'£',name:'Sterlin'},{code:'JPY',symbol:'¥',name:'Japon Yeni'},{code:'CAD',symbol:'CA$',name:'Kanada Doları'},{code:'AUD',symbol:'A$',name:'Avustralya Doları'},{code:'CHF',symbol:'Fr',name:'İsviçre Frangı'},{code:'SEK',symbol:'kr',name:'İsveç Kronu'},{code:'NOK',symbol:'kr',name:'Norveç Kronu'},{code:'KRW',symbol:'₩',name:'Güney Kore Wonu'},{code:'INR',symbol:'₹',name:'Hindistan Rupisi'},{code:'BRL',symbol:'R$',name:'Brezilya Reali'},{code:'SGD',symbol:'S$',name:'Singapur Doları'},{code:'AED',symbol:'AED',name:'BAE Dirhemi'},{code:'SAR',symbol:'SAR',name:'Suudi Riyali'}];
 const POPULAR_SVCS=[{id:'netflix',name:'Netflix',color:'#E50914',rgb:'229,9,20',prices:{tr:{amount:219.99,plan:'Standart'},us:{amount:15.49,plan:'Standard'},eu:{amount:13.99,plan:'Standard'},as:{amount:13.99,plan:'Standard'}},plans:{tr:[{name:'Reklamlı',price:149.99},{name:'Standart',price:219.99},{name:'Premium',price:329.99},{name:'Aile Paylaşımı',price:269.99}]}},{id:'youtube',name:'YouTube',color:'#FF0000',rgb:'255,0,0',prices:{tr:{amount:109.99,plan:'Premium'},us:{amount:13.99,plan:'Premium'},eu:{amount:11.99,plan:'Premium'},as:{amount:11.99,plan:'Premium'}},plans:{tr:[{name:'Bireysel',price:109.99},{name:'Aile (6 kişi)',price:179.99},{name:'Öğrenci',price:69.99}]}},{id:'disney',name:'Disney+',color:'#0ABFBC',rgb:'10,191,188',prices:{tr:{amount:149.99,plan:'Standart'},us:{amount:7.99,plan:'Basic'},eu:{amount:8.99,plan:'Standard'},as:{amount:8.99,plan:'Standard'}},plans:{tr:[{name:'Standart (Reklamlı)',price:109.99},{name:'Standart',price:149.99},{name:'Premium',price:219.99}]}},{id:'prime',name:'Prime Video',color:'#1A98FF',rgb:'26,152,255',prices:{tr:{amount:129.99,plan:'Prime'},us:{amount:8.99,plan:'Prime'},eu:{amount:8.99,plan:'Prime'},as:{amount:8.99,plan:'Prime'}},plans:{tr:[{name:'Prime Üyelik',price:129.99},{name:'Prime Video Kanal',price:49.99}]}},{id:'hbo',name:'HBO Max',color:'#3B1F6B',rgb:'59,31,107',prices:{tr:{amount:189.99,plan:'Reklamsız'},us:{amount:15.99,plan:'Ad-Free'},eu:{amount:9.99,plan:'Standard'},as:{amount:9.99,plan:'Standard'}},plans:{tr:[{name:'Reklamlı',price:129.99},{name:'Reklamsız',price:189.99},{name:'Ultimate (4K)',price:249.99}]}},{id:'apple',name:'Apple TV+',color:'#1c1c1e',rgb:'220,220,220',textDark:true,prices:{tr:{amount:99.99,plan:'Aile'},us:{amount:9.99,plan:'Monthly'},eu:{amount:8.99,plan:'Monthly'},as:{amount:8.99,plan:'Monthly'}},plans:{tr:[{name:'Bireysel',price:49.99},{name:'Aile (6 kişi)',price:99.99}]}},{id:'twitch',name:'Twitch',color:'#9146FF',rgb:'145,70,255',prices:{tr:{amount:0,plan:'Ücretsiz'},us:{amount:0,plan:'Free'},eu:{amount:0,plan:'Free'},as:{amount:0,plan:'Free'}},plans:{tr:[{name:'Ücretsiz',price:0},{name:'Turbo',price:89.99},{name:'Kanal Aboneliği',price:49.99}]}},{id:'kick',name:'Kick',color:'#53FC18',rgb:'83,252,24',textDark:true,prices:{tr:{amount:0,plan:'Ücretsiz'},us:{amount:0,plan:'Free'},eu:{amount:0,plan:'Free'},as:{amount:0,plan:'Free'}},plans:{tr:[{name:'Ücretsiz',price:0},{name:'Kanal Aboneliği',price:49.99}]}},{id:'exxen',name:'EXXEN',color:'#F9D100',rgb:'249,209,0',textDark:true,prices:{tr:{amount:179.99,plan:'Reklamlı HD'},us:{amount:0,plan:'N/A'},eu:{amount:0,plan:'N/A'},as:{amount:0,plan:'N/A'}},plans:{tr:[{name:'Reklamlı HD',price:119.99},{name:'Reklamsız HD',price:179.99},{name:'Reklamsız 4K',price:239.99},{name:'Spor Paketi',price:349.99}]}},{id:'bein',name:'beIN Connect',color:'#6F2DA8',rgb:'111,45,168',prices:{tr:{amount:249.99,plan:'Spor Paketi'},us:{amount:0,plan:'N/A'},eu:{amount:19.99,plan:'Sports'},as:{amount:0,plan:'N/A'}},plans:{tr:[{name:'Eğlence Paketi',price:149.99},{name:'Spor Paketi',price:249.99},{name:'Süper Paket',price:349.99}]}},{id:'spotify',name:'Spotify',color:'#1DB954',rgb:'29,185,84',prices:{tr:{amount:79.99,plan:'Bireysel'},us:{amount:10.99,plan:'Individual'},eu:{amount:10.99,plan:'Individual'},as:{amount:10.99,plan:'Individual'}},plans:{tr:[{name:'Bireysel',price:79.99},{name:'Öğrenci',price:49.99},{name:'Duo (2 kişi)',price:129.99},{name:'Aile (6 kişi)',price:159.99}]}},{id:'tvplus',name:'Turkcell TV+',color:'#FFD100',rgb:'255,209,0',textDark:true,prices:{tr:{amount:109.99,plan:'Bireysel'},us:{amount:9.99,plan:'Individual'},eu:{amount:9.99,plan:'Individual'},as:{amount:9.99,plan:'Individual'}},plans:{tr:[{name:'Bireysel',price:109.99},{name:'Aile',price:179.99}]}}];
 const LOGO={
-  netflix:{w:72,h:72,html:`<img src="netflix_N.png" style="width:66px;height:66px;object-fit:contain;">`},
-  youtube:{w:72,h:72,html:`<img src="youtube.png" style="width:66px;height:66px;object-fit:contain;">`},
-  disney:{w:72,h:72,html:`<img src="Disney+.png" style="width:66px;height:66px;object-fit:contain;">`},
-  prime:{w:72,h:72,html:`<img src="prime video.png" style="width:66px;height:66px;object-fit:contain;">`},
-  hbo:{w:72,h:72,html:`<img src="hbo.png" style="width:66px;height:66px;object-fit:contain;">`},
-  apple:{w:72,h:72,html:`<img src="apple.png" style="width:66px;height:66px;object-fit:contain;filter:brightness(10);">`,htmlDark:`<img src="appleb.png" style="width:66px;height:66px;object-fit:contain;">`,textDark:true},
-  twitch:{w:72,h:72,html:`<img src="twitch.png" style="width:66px;height:66px;object-fit:contain;">`},
-  kick:{w:72,h:72,html:`<img src="kick.png" style="width:52px;height:52px;object-fit:contain;">`,htmlDark:`<img src="kickb.png" style="width:52px;height:52px;object-fit:contain;">`,textDark:true},
-  exxen:{w:72,h:72,html:`<img src="exxen.png" style="width:66px;height:66px;object-fit:contain;">`,htmlDark:`<img src="exxenb.png" style="width:66px;height:66px;object-fit:contain;">`,textDark:true},
-  bein:{w:72,h:72,html:`<img src="bein.png" style="width:66px;height:66px;object-fit:contain;">`},
-  spotify:{w:72,h:72,html:`<svg viewBox="0 0 168 168" width="36" height="36"><path fill="white" d="M84 0C37.6 0 0 37.6 0 84s37.6 84 84 84 84-37.6 84-84S130.4 0 84 0zm38.6 121.2c-1.5 2.5-4.8 3.3-7.3 1.7-20-12.2-45.2-15-74.9-8.2-2.9.7-5.7-1.1-6.4-3.9-.7-2.9 1.1-5.7 3.9-6.4 32.5-7.4 60.4-4.2 82.9 9.5 2.5 1.5 3.3 4.8 1.8 7.3zm10.3-22.9c-1.9 3.1-5.9 4.1-9 2.2-22.9-14.1-57.8-18.2-84.9-9.9-3.5 1-7.2-.9-8.2-4.4-1-3.5.9-7.2 4.4-8.2 31-9.4 69.5-4.8 95.8 11.3 3.1 1.9 4.1 5.9 1.9 9zm.9-23.8c-27.5-16.3-72.9-17.8-99.2-9.9-4.2 1.3-8.7-1.1-9.9-5.3-1.3-4.2 1.1-8.7 5.3-9.9 30.2-9.2 80.4-7.4 112.1 11.5 3.8 2.3 5 7.1 2.8 10.9-2.2 3.7-7.1 4.9-10.9 2.7h-.2z"/></svg>`},
-  tvplus:{w:66,h:66,html:`<img src="tvplus.png" style="width:66px;height:66px;object-fit:contain;">`,htmlDark:`<img src="tvplus2.png" style="width:66px;height:66px;object-fit:contain;">`,textDark:true},
+  netflix:{w:72,h:72,html:`<img src="netflix_N.png" style="width:50px;height:50px;object-fit:contain;">`},
+  youtube:{w:72,h:72,html:`<img src="youtube.png" style="width:52px;height:52px;object-fit:contain;">`},
+  disney:{w:72,h:72,html:`<img src="Disney+.png" style="width:56px;height:56px;object-fit:contain;">`},
+  prime:{w:72,h:72,html:`<img src="prime video.png" style="width:56px;height:56px;object-fit:contain;">`},
+  hbo:{w:72,h:72,html:`<img src="hbo.png" style="width:54px;height:54px;object-fit:contain;">`},
+  apple:{w:72,h:72,html:`<img src="apple.png" style="width:52px;height:52px;object-fit:contain;filter:brightness(10);">`,htmlDark:`<img src="appleb.png" style="width:52px;height:52px;object-fit:contain;">`,textDark:true},
+  twitch:{w:72,h:72,html:`<img src="twitch.png" style="width:50px;height:50px;object-fit:contain;">`},
+  kick:{w:72,h:72,html:`<img src="kick.png" style="width:44px;height:44px;object-fit:contain;">`,htmlDark:`<img src="kickb.png" style="width:44px;height:44px;object-fit:contain;">`,textDark:true},
+  exxen:{w:72,h:72,html:`<img src="exxen.png" style="width:54px;height:54px;object-fit:contain;">`,htmlDark:`<img src="exxenb.png" style="width:54px;height:54px;object-fit:contain;">`,textDark:true},
+  bein:{w:72,h:72,html:`<img src="bein.png" style="width:50px;height:50px;object-fit:contain;">`},
+  spotify:{w:72,h:72,html:`<img src="Spotify.png" style="width:48px;height:48px;object-fit:contain;filter:brightness(10);">`,htmlDark:`<img src="Spotifyb.png" style="width:48px;height:48px;object-fit:contain;">`},
+  tvplus:{w:72,h:72,html:`<img src="tvplus.png" style="width:52px;height:52px;object-fit:contain;">`,htmlDark:`<img src="tvplus2.png" style="width:52px;height:52px;object-fit:contain;">`,textDark:true},
   _custom:{w:36,h:36,html:`<svg viewBox="0 0 36 36" width="36" height="36"><circle cx="18" cy="18" r="16" fill="rgba(255,255,255,.2)" stroke="white" stroke-width="1.5"/><text x="18" y="24" font-family="-apple-system,sans-serif" font-size="16" font-weight="700" fill="white" text-anchor="middle">▶</text></svg>`}
 };
 let SVC=[],SETTINGS={},PROFILE={name:'Kullanıcı',email:'kullanici@icloud.com'};
@@ -1203,7 +1238,7 @@ let lockTimer=null,isLocked=false;
 let pinVal='',pinMode='unlock',pinStep=0,tempPin='';
 let selectedPopular=null;
 function saveData(){try{localStorage.setItem('easytv_svc',JSON.stringify(SVC));localStorage.setItem('easytv_settings',JSON.stringify(SETTINGS));localStorage.setItem('easytv_profile',JSON.stringify(PROFILE));localStorage.setItem('easytv_pin',SETTINGS.pin||'1111');}catch(e){}}
-function loadData(){try{const s=localStorage.getItem('easytv_svc');const st=localStorage.getItem('easytv_settings');const pr=localStorage.getItem('easytv_profile');if(s)SVC=JSON.parse(s);if(st)SETTINGS=JSON.parse(st);if(pr)PROFILE=JSON.parse(pr);if(!SETTINGS.pin)SETTINGS.pin='1111';if(!SETTINGS.autolock)SETTINGS.autolock=true;if(!SETTINGS.faceid)SETTINGS.faceid=true;if(!SETTINGS.qrrotate)SETTINGS.qrrotate=true;}catch(e){SETTINGS={pin:'1111',autolock:true,faceid:true,qrrotate:true};}}
+function loadData(){try{const s=localStorage.getItem('easytv_svc');const st=localStorage.getItem('easytv_settings');const pr=localStorage.getItem('easytv_profile');if(s)SVC=JSON.parse(s);if(st)SETTINGS=JSON.parse(st);if(pr)PROFILE=JSON.parse(pr);if(!SETTINGS.pin)SETTINGS.pin='1111';if(!SETTINGS.autolock)SETTINGS.autolock=true;if(!SETTINGS.faceid)SETTINGS.faceid=true;if(!SETTINGS.qrrotate)SETTINGS.qrrotate=true;if(SETTINGS.reminder===undefined)SETTINGS.reminder=true;if(SETTINGS.pricechange===undefined)SETTINGS.pricechange=true;}catch(e){SETTINGS={pin:'1111',autolock:true,faceid:true,qrrotate:true,reminder:true,pricechange:true};}}
 let EXCHANGE_RATES={};let RATES_TIMESTAMP=0;
 try{const rc=localStorage.getItem('easytv_rates');const rt=localStorage.getItem('easytv_rates_ts');if(rc)EXCHANGE_RATES=JSON.parse(rc);if(rt)RATES_TIMESTAMP=parseInt(rt);}catch(e){}
 setTimeout(()=>{fetchExchangeRates(false);},2500);
@@ -1377,7 +1412,7 @@ function finishOnboard(){
 }
 function skipServices(){obStep++;renderOnboardStep();}
 function skipOnboard(){localStorage.setItem('easytv_setup_done','1');document.getElementById('onboardScreen').classList.add('out');setTimeout(()=>{document.getElementById('onboardScreen').style.display='none';unlockApp();},500);}
-function buildServicePicker(){const g=document.getElementById('spGrid');g.innerHTML='';POPULAR_SVCS.forEach(s=>{const el=document.createElement('div');el.className='sp-item'+(obSelectedServices.includes(s.id)?' sel':'');const L=LOGO[s.id]||null;let logoHtml='';if(L&&L.html&&L.html.includes('<img')){const src=L.html.match(/src="([^"]+)"/)?.[1]||'';logoHtml=`<img src="${src}" style="width:55%;height:55%;object-fit:contain;">`;}else if(L&&L.html){logoHtml=`<div style="transform:scale(.5);transform-origin:center;">${L.html}</div>`;}else{logoHtml=`<span style="font-size:38px;font-weight:800;color:${s.textDark?'#000':'#fff'}">${s.name[0]}</span>`;}const pickerBg=TILE_GRADIENTS[s.id]||s.color;
+function buildServicePicker(){const g=document.getElementById('spGrid');g.innerHTML='';POPULAR_SVCS.forEach(s=>{const el=document.createElement('div');el.className='sp-item'+(obSelectedServices.includes(s.id)?' sel':'');const L=LOGO[s.id]||null;let logoHtml='';if(L&&L.html&&L.html.includes('<img')){const src=L.html.match(/src="([^"]+)"/)?.[1]||'';logoHtml=`<img src="${src}" style="width:55%;height:55%;object-fit:contain;">`;}else if(L&&L.html){logoHtml=`<div style="width:55%;height:55%;display:flex;align-items:center;justify-content:center;overflow:hidden;">${L.html.replace(/width="\d+"/,'width="100%"').replace(/height="\d+"/,'height="100%"')}</div>`;}else{logoHtml=`<span style="font-size:38px;font-weight:800;color:${s.textDark?'#000':'#fff'}">${s.name[0]}</span>`;}const pickerBg=TILE_GRADIENTS[s.id]||s.color;
     // Apple TV: picker'da özel arka plan (logo görünürlüğü için)
     let pickerLogoHtml = logoHtml;
     let pickerBgFinal = pickerBg;
@@ -1421,13 +1456,13 @@ async function checkPin(){
   if(ok){
     if(pinMode==='change1'){tempPin=pinVal;pinVal='';pinMode='change2';
       document.getElementById('pinGreeting').textContent='Yeni PIN';
-      document.getElementById('pinHint').textContent='Yeni PIN' + String.fromCharCode(39) + 'ini gir';
+      document.getElementById('pinHint').textContent='Yeni PIN\u0027ini gir';
       updatePinDots();
     } else if(pinMode==='change2'){
       if(pinVal===tempPin){await savePin(pinVal);pinMode='unlock';showToast('PIN güncellendi');hidePinScreen();pinVal='';}
-      else{shakePin();pinVal='';document.getElementById('pinHint').textContent='Eslesmed, tekrar dene';}
+      else{document.getElementById('pinDots').classList.add('shake');setTimeout(()=>document.getElementById('pinDots').classList.remove('shake'),500);pinVal='';updatePinDots();document.getElementById('pinHint').textContent='Eşleşmedi, tekrar dene';}
     } else { unlockApp(); }
-  } else { shakePin(); pinVal=''; }
+  } else { document.getElementById('pinDots').classList.add('shake');setTimeout(()=>document.getElementById('pinDots').classList.remove('shake'),500);pinVal='';updatePinDots(); }
 }
 const gridEl = document.getElementById('grid');
 
@@ -1613,7 +1648,7 @@ function hexToRgb(h){if(!h||!h.startsWith('#'))return null;const r=parseInt(h.sl
 function checkRenewals(){const today=new Date();today.setHours(0,0,0,0);SVC.forEach((s,i)=>{if(!s.renew)return;const d=new Date(s.renew);d.setHours(0,0,0,0);const diff=Math.ceil((d-today)/864e5);if(diff<=0&&diff>-3){setTimeout(()=>showRenewalAlert(i),800+(i*200));}});}
 function showRenewalAlert(i){const s=SVC[i];document.getElementById('renewalTitle').textContent=`${s.name} Yenilendi mi?`;document.getElementById('renewalMsg').textContent=`${s.name} aboneliğinizin yenileme tarihi geçti. Yenilediniz mi?`;document.getElementById('renewalActions').innerHTML=`<button class="alert-btn primary" onclick="confirmRenewal(${i},true)">Evet, Yenilendi</button><button class="alert-btn secondary" onclick="confirmRenewal(${i},false)">Hayır, İptal Ettim</button>`;document.getElementById('renewalModal').classList.add('open');}
 function confirmRenewal(i,renewed){document.getElementById('renewalModal').classList.remove('open');if(renewed){const d=new Date(SVC[i].renew||new Date());d.setMonth(d.getMonth()+1);SVC[i].renew=d.toISOString().split('T')[0];saveData();renderSubs();showToast('✓ Yenileme tarihi güncellendi');}else{SVC[i].renew=null;saveData();renderSubs();showToast(`${SVC[i].name} listeden çıkarıldı`);}}
-function renderSubs(){const paid=SVC.filter(s=>s.price>0);const displayCode=SETTINGS.displayCurrency||'TRY';const totalConverted=paid.reduce((a,s)=>{const cv=convertPrice(s.price,s.priceCurrency||'TRY');return a+cv.value;},0);const dispSym=(CURRENCIES.find(cc=>cc.code===displayCode)||CURRENCIES[0]).symbol;document.getElementById('totalMonthly').textContent=dispSym+totalConverted.toFixed(2);renderSpendingChart(paid);const dates=paid.filter(s=>s.renew).map(s=>({d:new Date(s.renew)})).sort((a,b)=>a.d-b.d);document.getElementById('nextRenew').textContent=dates.length?formatDate(dates[0].d):'—';document.getElementById('subsSubtitle').textContent=`${paid.length} aktif üyelik`;const list=document.getElementById('subsList');list.innerHTML='';if(SVC.length===0){list.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;"><div style="font-size:48px;opacity:.3;">📺</div><div style="font-size:16px;font-weight:700;color:rgba(255,255,255,.5);">${t('no_subs')}</div></div>`;return;}const today=new Date();today.setHours(0,0,0,0);const svcWithIdx=SVC.map((s,i)=>({...s,_idx:i}));svcWithIdx.sort((a,b)=>{if(!a.renew&&!b.renew)return 0;if(!a.renew)return 1;if(!b.renew)return-1;return new Date(a.renew)-new Date(b.renew);}).forEach(s=>{const card=document.createElement('div');card.className='sub-card';const daysLeft=s.renew?Math.ceil((new Date(s.renew)-today)/864e5):null;const urgent=daysLeft!==null&&daysLeft<=3;const warn=daysLeft!==null&&daysLeft<=7&&!urgent;let badge='';if(daysLeft===null)badge=`<div class="sub-badge ok">${t('free_badge')}</div>`;else if(urgent)badge=`<div class="sub-badge">${daysLeft<=0?t('today_badge'):t('days_left',daysLeft)}</div>`;else if(warn)badge=`<div class="sub-badge warn">${t('days_left',daysLeft)}</div>`;else badge=`<div class="sub-badge ok">${formatDate(new Date(s.renew))}</div>`;const idx=s._idx;const L2=LOGO[s.id]||null;let cLogo='';if(s.faviconUrl){cLogo=`<img src="${s.faviconUrl}" style="width:34px;height:34px;object-fit:contain;border-radius:8px;">`;}else if(L2&&L2.html&&L2.html.includes('<img')){const cardLogoHtml=L2.html.replace(/width:[^;"]+/g,'width:34px').replace(/height:[^;"]+/g,'height:34px');cLogo=cardLogoHtml;}else if(L2&&L2.html){const sc2=Math.min(28/(L2.w||28),28/(L2.h||28));cLogo=`<div style="width:${Math.round((L2.w||28)*sc2)}px;height:${Math.round((L2.h||28)*sc2)}px;display:flex;align-items:center;justify-content:center;">${L2.html}</div>`;}else{cLogo=`<span style="font-size:22px;font-weight:800;color:#fff;">${(s.name||'?')[0].toUpperCase()}</span>`;}card.style.boxShadow=`inset 3px 0 0 ${s.color}`;card.innerHTML=`<div style="width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${cLogo}</div><div style="flex:1;min-width:0;"><div class="sub-name">${s.name}</div><div class="sub-plan">${s.plan||'Standart'}</div>${badge}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;"><div style="font-size:19px;font-weight:800;color:#fff;letter-spacing:-.5px;white-space:nowrap;">${s.price>0?formatPrice(s.price):'—'}</div><div style="font-size:11px;color:rgba(255,255,255,.33);margin-top:-2px;">${s.price>0?t('per_month'):''}</div><button onclick="openSubEdit(${idx})" style="margin-top:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 13px;color:rgba(255,255,255,.75);font-size:12px;font-weight:600;cursor:pointer;">${t('edit_btn')}</button></div>`;list.appendChild(card);});}
+function renderSubs(){const paid=SVC.filter(s=>s.price>0);const displayCode=SETTINGS.displayCurrency||'TRY';const totalConverted=paid.reduce((a,s)=>{const cv=convertPrice(s.price,s.priceCurrency||'TRY');return a+cv.value;},0);const dispSym=(CURRENCIES.find(cc=>cc.code===displayCode)||CURRENCIES[0]).symbol;document.getElementById('totalMonthly').textContent=dispSym+totalConverted.toFixed(2);renderSpendingChart(paid);const dates=paid.filter(s=>s.renew).map(s=>({d:new Date(s.renew)})).sort((a,b)=>a.d-b.d);document.getElementById('nextRenew').textContent=dates.length?formatDate(dates[0].d):'—';document.getElementById('subsSubtitle').textContent=`${paid.length} aktif üyelik`;const list=document.getElementById('subsList');list.innerHTML='';if(SVC.length===0){list.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;"><div style="font-size:48px;opacity:.3;">📺</div><div style="font-size:16px;font-weight:700;color:rgba(255,255,255,.5);">${t('no_subs')}</div></div>`;return;}const today=new Date();today.setHours(0,0,0,0);const svcWithIdx=SVC.map((s,i)=>({...s,_idx:i}));svcWithIdx.sort((a,b)=>{if(!a.renew&&!b.renew)return 0;if(!a.renew)return 1;if(!b.renew)return-1;return new Date(a.renew)-new Date(b.renew);}).forEach(s=>{const card=document.createElement('div');card.className='sub-card';const daysLeft=s.renew?Math.ceil((new Date(s.renew)-today)/864e5):null;const urgent=daysLeft!==null&&daysLeft<=3;const warn=daysLeft!==null&&daysLeft<=7&&!urgent;let badge='';if(daysLeft===null)badge=`<div class="sub-badge ok">${t('free_badge')}</div>`;else if(urgent)badge=`<div class="sub-badge">${daysLeft<=0?t('today_badge'):t('days_left',daysLeft)}</div>`;else if(warn)badge=`<div class="sub-badge warn">${t('days_left',daysLeft)}</div>`;else badge=`<div class="sub-badge ok">${formatDate(new Date(s.renew))}</div>`;const idx=s._idx;const L2=LOGO[s.id]||null;let cLogo='';if(s.faviconUrl){cLogo=`<img src="${s.faviconUrl}" style="width:34px;height:34px;object-fit:contain;border-radius:8px;">`;}else if(L2&&L2.html&&L2.html.includes('<img')){const cardLogoHtml=L2.html.replace(/width:[^;"]+/g,'width:34px').replace(/height:[^;"]+/g,'height:34px');cLogo=cardLogoHtml;}else if(L2&&L2.html){const sc2=Math.min(28/(L2.w||28),28/(L2.h||28));cLogo=`<div style="width:${Math.round((L2.w||28)*sc2)}px;height:${Math.round((L2.h||28)*sc2)}px;display:flex;align-items:center;justify-content:center;">${L2.html}</div>`;}else{cLogo=`<span style="font-size:22px;font-weight:800;color:#fff;">${(s.name||'?')[0].toUpperCase()}</span>`;}card.style.boxShadow=`inset 3px 0 0 ${s.color}`;card.innerHTML=`<div style="width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">${cLogo}</div><div style="flex:1;min-width:0;"><div class="sub-name">${s.name}</div><div class="sub-plan">${s.plan||'Standart'}</div>${badge}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;"><div style="font-size:19px;font-weight:800;color:#fff;letter-spacing:-.5px;white-space:nowrap;">${s.price>0?formatPrice(s.price):'—'}</div><div style="font-size:11px;color:rgba(255,255,255,.33);margin-top:-2px;">${s.price>0?t('per_month'):''}</div>${s.fullPrice&&s.fullPrice!==s.price&&s.userCount>1?`<div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:1px;">${formatPrice(s.fullPrice)} ÷ ${s.userCount}</div>`:''}<button onclick="openSubEdit(${idx})" style="margin-top:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 13px;color:rgba(255,255,255,.75);font-size:12px;font-weight:600;cursor:pointer;">${t('edit_btn')}</button></div>`;list.appendChild(card);});}
 function renderSpendingChart(paid){
   // Geçmiş ay verilerini simüle et (gerçek veri yoksa mevcut+varyasyon)
   const today = new Date();
@@ -1655,6 +1690,111 @@ const el=document.getElementById('spendingChart');if(!el||paid.length===0){if(el
   }).join('');
   el.innerHTML=`<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.5px;">${t('spending_chart')}</div>${diffTxt?`<div style="font-size:11px;font-weight:700;color:${diffColor};">${diffTxt}</div>`:''}</div><div style="display:flex;align-items:flex-end;gap:4px;height:60px;margin-bottom:10px;">${trendBars}</div><div style="height:1px;background:rgba(255,255,255,.06);margin-bottom:10px;"></div>${bars}</div>`;}
 function formatDate(d){return d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'});}
+// Max kullanıcı sayıları (plan adındaki ipucuna göre)
+function getMaxUsers(svcId, planName) {
+  const pn = (planName||'').toLowerCase();
+  // Plan adında kişi sayısı varsa onu kullan
+  const m = pn.match(/(\d+)\s*ki[sş]i/);
+  if (m) return parseInt(m[1]);
+  // Aile planları
+  if (pn.includes('aile') || pn.includes('family')) return 6;
+  if (pn.includes('duo')) return 2;
+  // Servis bazlı varsayılanlar
+  const defaults = {
+    netflix: {reklamlı:1,standart:2,standard:2,premium:4,'aile paylaşımı':5},
+    youtube: {bireysel:1,'öğrenci':1},
+    disney: {'standart (reklamlı)':1,standart:2,standard:2,premium:4},
+    prime: {prime:3},
+    hbo: {reklamlı:1,reklamsız:3,ultimate:3},
+    apple: {bireysel:1},
+    spotify: {bireysel:1,'öğrenci':1},
+    exxen: {reklamlı:1,reklamsız:1,'reklamsız 4k':1,'spor paketi':1},
+    bein: {'eğlence paketi':2,'spor paketi':2,'süper paket':2},
+    tvplus: {bireysel:1,aile:4},
+    twitch: {ücretsiz:1,turbo:1},
+    kick: {ücretsiz:1}
+  };
+  const svcDefaults = defaults[svcId] || {};
+  for (const [key, val] of Object.entries(svcDefaults)) {
+    if (pn.includes(key)) return val;
+  }
+  return 1;
+}
+
+let _seUserCount = 1, _sePayMode = 'ben', _seShareInited = false;
+
+function setupShareSection(s, isInit) {
+  const planName = document.getElementById('sePlan').value || s.plan;
+  const maxU = getMaxUsers(s.id, planName);
+  const shareRow = document.getElementById('seShareRow');
+  
+  // 1 kişilik plan ise paylaşım gösterme
+  if (maxU <= 1) { shareRow.style.display = 'none'; return; }
+  
+  shareRow.style.display = 'block';
+  if (isInit) {
+    _seUserCount = s.userCount || 1;
+    _sePayMode = s.payMode || 'ben';
+  }
+  if (_seUserCount > maxU) _seUserCount = maxU;
+  
+  // Kaç kişi kullanıyor chips
+  const userChips = document.getElementById('seUserChips');
+  userChips.innerHTML = '';
+  for (let n = 1; n <= maxU; n++) {
+    const chip = document.createElement('button');
+    const isSel = n === _seUserCount;
+    chip.style.cssText = `width:38px;height:38px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:1.5px solid ${isSel?'rgba(255,255,255,.7)':'rgba(255,255,255,.12)'};background:${isSel?'rgba(255,255,255,.18)':'rgba(255,255,255,.04)'};color:${isSel?'#fff':'rgba(255,255,255,.45)'};transition:all .15s;display:flex;align-items:center;justify-content:center;`;
+    chip.textContent = n;
+    chip.onclick = () => {
+      _seUserCount = n;
+      setupShareSection(s);
+    };
+    userChips.appendChild(chip);
+  }
+  
+  // Ödeme şekli chips
+  const payChips = document.getElementById('sePayChips');
+  payChips.innerHTML = '';
+  const payModes = [
+    {id:'ben', label:'🙋 Ben', desc:'Tamamı bende'},
+    {id:'esit', label:'⚖️ Eşit', desc:'Eşit bölüşme'},
+    {id:'baskasi', label:'🎁 Başkası', desc:'Ben ödemiyorum'}
+  ];
+  payModes.forEach(pm => {
+    const chip = document.createElement('button');
+    const isSel = pm.id === _sePayMode;
+    chip.style.cssText = `padding:8px 14px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid ${isSel?'rgba(255,255,255,.7)':'rgba(255,255,255,.12)'};background:${isSel?'rgba(255,255,255,.18)':'rgba(255,255,255,.04)'};color:${isSel?'#fff':'rgba(255,255,255,.45)'};transition:all .15s;white-space:nowrap;`;
+    chip.textContent = pm.label;
+    chip.onclick = () => {
+      _sePayMode = pm.id;
+      setupShareSection(s);
+    };
+    payChips.appendChild(chip);
+  });
+  
+  // Sonuç hesapla
+  const fullPrice = parseFloat(document.getElementById('sePrice').value) || s.fullPrice || s.price || 0;
+  const sym = getCountrySymbol();
+  let myCost = fullPrice;
+  let resultText = '';
+  
+  if (_sePayMode === 'ben') {
+    myCost = fullPrice;
+    resultText = `Toplam ${sym}${fullPrice.toFixed(2)} · Tamamını sen ödüyorsun`;
+  } else if (_sePayMode === 'esit') {
+    myCost = _seUserCount > 0 ? fullPrice / _seUserCount : fullPrice;
+    resultText = `${sym}${fullPrice.toFixed(2)} ÷ ${_seUserCount} kişi = Sana aylık ${sym}${myCost.toFixed(2)}`;
+  } else if (_sePayMode === 'baskasi') {
+    myCost = 0;
+    resultText = `Sen ödemiyorsun · Aylık maliyetin ${sym}0`;
+  }
+  
+  const resultEl = document.getElementById('seShareResult');
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = resultText;
+}
+
 let seEditIdx=-1;
 function openSubEdit(i){seEditIdx=i;const s=SVC[i];const L=LOGO[s.id]||{w:28,h:28,html:null};document.getElementById('seServiceName').textContent=s.name;const logoWrap=document.getElementById('seLogoWrap');logoWrap.style.background=s.color;if(L.html&&L.html.includes('<img')){const src=L.html.match(/src="([^"]+)"/)?.[1]||'';logoWrap.innerHTML=`<img src="${src}" style="width:28px;height:28px;object-fit:contain;">`;}else if(L.html){const sc=22/Math.max(L.w||22,L.h||22);logoWrap.innerHTML=`<div style="width:${Math.round((L.w||22)*sc)}px;height:${Math.round((L.h||22)*sc)}px;display:flex;align-items:center;justify-content:center;">${L.html}</div>`;}else{logoWrap.innerHTML=`<span style="font-size:22px;font-weight:800;color:#fff;">${(s.name||'?')[0].toUpperCase()}</span>`;}const saveBtn=document.getElementById('sesSaveBtn');saveBtn.style.background=TILE_GRADIENTS[s.id]||s.color||'rgba(255,255,255,.15)';saveBtn.style.color=(s.textDark||(LOGO[s.id]||{}).textDark)?'#000':'#fff';const chips=document.getElementById('sePlanChips');chips.innerHTML='';const oldWrap=document.getElementById('sePlanManualWrap');if(oldWrap)oldWrap.remove();const planRow=document.getElementById('sePlanRow');const planOpts=getCountryPlans(s.id);const sym=getCountrySymbol();if(planOpts.length>0){planRow.style.display='block';const isOther=!planOpts.find(p=>p.name===(s.plan||''));planOpts.forEach(p=>{const chip=document.createElement('button');const isSel=(s.plan||'')===p.name;chip.style.cssText=`padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid ${isSel?'rgba(255,255,255,.6)':'rgba(255,255,255,.15)'};background:${isSel?'rgba(255,255,255,.15)':'rgba(255,255,255,.04)'};color:${isSel?'#fff':'rgba(255,255,255,.5)'};transition:all .15s;white-space:nowrap;`;chip.textContent=p.name+' · '+sym+p.price.toFixed(0);chip.onclick=()=>{
   // Press animasyonu
@@ -1664,11 +1804,11 @@ function openSubEdit(i){seEditIdx=i;const s=SVC[i];const L=LOGO[s.id]||{w:28,h:2
   void chip.offsetWidth;
   chip.style.transition='all .18s';
   chips.querySelectorAll('button').forEach(cc=>{cc.style.borderColor='rgba(255,255,255,.15)';cc.style.background='rgba(255,255,255,.04)';cc.style.color='rgba(255,255,255,.5)';cc.style.transform='';});
-  chip.style.borderColor='rgba(255,255,255,.6)';chip.style.background='rgba(255,255,255,.15)';chip.style.color='#fff';chip.style.transform='';document.getElementById('sePlan').value=p.name;document.getElementById('sePrice').value=p.price;const mw=document.getElementById('sePlanManualWrap');if(mw)mw.style.display='none';};chips.appendChild(chip);});const otherChip=document.createElement('button');otherChip.style.cssText=`padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid ${isOther?'rgba(255,255,255,.6)':'rgba(255,255,255,.15)'};background:${isOther?'rgba(255,255,255,.15)':'rgba(255,255,255,.04)'};color:${isOther?'#fff':'rgba(255,255,255,.5)'};transition:all .15s;white-space:nowrap;`;otherChip.textContent='Diğer';otherChip.onclick=()=>{chips.querySelectorAll('button').forEach(c=>{c.style.borderColor='rgba(255,255,255,.15)';c.style.background='rgba(255,255,255,.04)';c.style.color='rgba(255,255,255,.5)';});otherChip.style.borderColor='rgba(255,255,255,.6)';otherChip.style.background='rgba(255,255,255,.15)';otherChip.style.color='#fff';document.getElementById('sePlanManualWrap').style.display='block';document.getElementById('sePlan').value='';document.getElementById('sePrice').value='';};chips.appendChild(otherChip);const mw=document.createElement('div');mw.id='sePlanManualWrap';mw.style.cssText='display:'+(isOther?'flex':'none')+';flex-direction:column;gap:8px;margin-top:10px;';mw.innerHTML=`<input id="sePlanManualInput" class="add-input" type="text" placeholder="Plan adı..." value="${isOther?(s.plan||''):''}">`;chips.after(mw);document.getElementById('sePlanManualInput').oninput=()=>{document.getElementById('sePlan').value=document.getElementById('sePlanManualInput').value;};}else{planRow.style.display='none';}document.getElementById('seShareRow').style.display='none';document.getElementById('sePrice').value=s.fullPrice||s.price||'';document.getElementById('sePlan').value=s.plan||'';document.getElementById('seRenew').value=s.renew||'';document.getElementById('seEmail').value=s.email||'';document.getElementById('sePwd').value=s.pwd||'';document.getElementById('sePwd').type='password';const m=document.getElementById('subEditModal');m.style.display='flex';}
+  chip.style.borderColor='rgba(255,255,255,.6)';chip.style.background='rgba(255,255,255,.15)';chip.style.color='#fff';chip.style.transform='';document.getElementById('sePlan').value=p.name;document.getElementById('sePrice').value=p.price;const mw=document.getElementById('sePlanManualWrap');if(mw)mw.style.display='none';if(seEditIdx>=0){setupShareSection(SVC[seEditIdx]);}};chips.appendChild(chip);});const otherChip=document.createElement('button');otherChip.style.cssText=`padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid ${isOther?'rgba(255,255,255,.6)':'rgba(255,255,255,.15)'};background:${isOther?'rgba(255,255,255,.15)':'rgba(255,255,255,.04)'};color:${isOther?'#fff':'rgba(255,255,255,.5)'};transition:all .15s;white-space:nowrap;`;otherChip.textContent='Diğer';otherChip.onclick=()=>{chips.querySelectorAll('button').forEach(c=>{c.style.borderColor='rgba(255,255,255,.15)';c.style.background='rgba(255,255,255,.04)';c.style.color='rgba(255,255,255,.5)';});otherChip.style.borderColor='rgba(255,255,255,.6)';otherChip.style.background='rgba(255,255,255,.15)';otherChip.style.color='#fff';document.getElementById('sePlanManualWrap').style.display='block';document.getElementById('sePlan').value='';document.getElementById('sePrice').value='';};chips.appendChild(otherChip);const mw=document.createElement('div');mw.id='sePlanManualWrap';mw.style.cssText='display:'+(isOther?'flex':'none')+';flex-direction:column;gap:8px;margin-top:10px;';mw.innerHTML=`<input id="sePlanManualInput" class="add-input" type="text" placeholder="Plan adı..." value="${isOther?(s.plan||''):''}">`;chips.after(mw);document.getElementById('sePlanManualInput').oninput=()=>{document.getElementById('sePlan').value=document.getElementById('sePlanManualInput').value;};}else{planRow.style.display='none';}document.getElementById('seShareRow').style.display='none';document.getElementById('sePrice').value=s.fullPrice||s.price||'';document.getElementById('sePlan').value=s.plan||'';document.getElementById('seRenew').value=s.renew||'';document.getElementById('seEmail').value=s.email||'';document.getElementById('sePwd').value=s.pwd||'';document.getElementById('sePwd').type='password';setupShareSection(s,true);const m=document.getElementById('subEditModal');m.style.display='flex';}
 function toggleSePwd(){const inp=document.getElementById('sePwd');inp.type=inp.type==='password'?'text':'password';}
 function openSubEditFromSheet(){const idx=active;if(idx<0)return;closeSheet();setTimeout(()=>openSubEdit(idx),280);}
 function closeSubEdit(){document.getElementById('subEditModal').style.display='none';}
-function saveSubEdit(){if(seEditIdx<0)return;const price=parseFloat(document.getElementById('sePrice').value)||0;const plan=document.getElementById('sePlan').value.trim();const renew=document.getElementById('seRenew').value||null;const email=document.getElementById('seEmail').value.trim();const pwd=document.getElementById('sePwd').value;SVC[seEditIdx]={...SVC[seEditIdx],price,fullPrice:price,plan,renew,email,pwd};saveData();renderSubs();closeSubEdit();showToast('✓ Güncellendi');}
+function saveSubEdit(){if(seEditIdx<0)return;const fullPrice=parseFloat(document.getElementById('sePrice').value)||0;const plan=document.getElementById('sePlan').value.trim();const renew=document.getElementById('seRenew').value||null;const email=document.getElementById('seEmail').value.trim();const pwd=document.getElementById('sePwd').value;const maxU=getMaxUsers(SVC[seEditIdx].id,plan);let effectivePrice=fullPrice;if(maxU>1){if(_sePayMode==='esit'&&_seUserCount>0)effectivePrice=+(fullPrice/_seUserCount).toFixed(2);else if(_sePayMode==='baskasi')effectivePrice=0;}SVC[seEditIdx]={...SVC[seEditIdx],price:effectivePrice,fullPrice,plan,renew,email,pwd,userCount:_seUserCount,payMode:_sePayMode};saveData();renderSubs();closeSubEdit();showToast('✓ Güncellendi');}
 function deleteSubEdit(){if(seEditIdx<0)return;const name=SVC[seEditIdx].name;SVC.splice(seEditIdx,1);saveData();buildGrid();renderSubs();closeSubEdit();showToast(`${name} silindi`);}
 function renderProfile(){const paid=SVC.filter(s=>s.price>0);const total=paid.reduce((a,s)=>a+s.price,0);document.getElementById('statApps').textContent=SVC.length;document.getElementById('statSubs').textContent=paid.length;const sTot=paid.reduce((a,sv)=>{const c=convertPrice(sv.price,sv.priceCurrency||'TRY');return a+c.value;},0);
   const sSym=(CURRENCIES.find(c=>c.code===(SETTINGS.displayCurrency||'TRY'))||CURRENCIES[0]).symbol;
@@ -2176,16 +2316,16 @@ function showInAppNotif(msg, color) {
 }
 
 // toggleSetting'e bildirim izni ekle
-const _origToggleSetting = toggleSetting;
-function toggleSetting(key, el) {
-  _origToggleSetting(key, el);
+const _origToggle = toggleSetting;
+window.toggleSetting = function(key, el) {
+  _origToggle(key, el);
   if (key === 'reminder' && SETTINGS.reminder) {
     requestNotifPermission().then(granted => {
       if (!granted) showToast('Bildirim izni verilmedi');
       else scheduleRenewalNotifs();
     });
   }
-}
+};
 
 // ── BAŞLAT ──
 applySettings();applyLang();
@@ -2225,5 +2365,15 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+<script>
+// Detect browser vs Capacitor - add iPhone mockup frame in browser
+(function(){
+  var isCap = window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+  if(!isCap && window.innerWidth > 500){
+    document.body.classList.add('browser-preview');
+  }
+})();
+</script>
+</div><!-- /phone-mock -->
 </body>
 </html>
