@@ -29,6 +29,29 @@ jobs:
         echo "=== Checking node_modules ==="
         ls node_modules/@capacitor/ || true
 
+    - name: Generate App Icon (1024x1024)
+      run: |
+        python3 << 'PYEOF'
+        import struct, zlib
+
+        def make_png(w, h, r, g, b):
+            def chunk(ct, d):
+                c = ct + d
+                return struct.pack('>I', len(d)) + c + struct.pack('>I', zlib.crc32(c) & 0xffffffff)
+            raw = b''
+            row = b'\x00' + bytes([r, g, b]) * w
+            for _ in range(h):
+                raw += row
+            return (b'\x89PNG\r\n\x1a\n' +
+                    chunk(b'IHDR', struct.pack('>IIBBBBB', w, h, 8, 2, 0, 0, 0)) +
+                    chunk(b'IDAT', zlib.compress(raw, 9)) +
+                    chunk(b'IEND', b''))
+
+        with open('ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png', 'wb') as f:
+            f.write(make_png(1024, 1024, 10, 10, 10))
+        print("Generated 1024x1024 icon")
+        PYEOF
+
     - name: List Xcode versions
       run: |
         xcode-select -p
